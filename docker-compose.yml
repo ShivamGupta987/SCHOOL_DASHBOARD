@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
-      POSTGRES_DB: mydb
+      POSTGRES_DB: school
     ports:
       - '5432:5432'
     volumes:
@@ -19,9 +19,10 @@ services:
     ports:
       - '3000:3000'
     environment:
-      - DATABASE_URL: postgresql://myuser:mypassword@[YOUR_SERVER_IP]:5432/mydb
+      - DATABASE_URL: "postgresql://lamadev:lama123456@postgress:5432/school"
+      
     depends_on:
-      - postgres
+      - postgress
 
 volumes:
   postgres_data:
