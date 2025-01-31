@@ -5,7 +5,7 @@ import Table from "@/components/Table";
 import Link from "next/link";
 import { role, teachersData } from "@/lib/data";
 import FormModal from "@/components/FormModal";
-import { Class, Subject, Teacher } from "@prisma/client";
+import { Class, Prisma, Subject, Teacher } from "@prisma/client";
 import prisma from "@/lib/prisma";
 import { ITEM_PER_PAGE } from "@/lib/settings";
 
@@ -96,21 +96,40 @@ const TeacherListPage = async ({searchParams}:{searchParams:{[key:string]:string
   const {page,...queryParams} = searchParams
 
   const p = page ? parseInt(page) : 1;
-  const [data,count] = await prisma.$transaction([
-     prisma.teacher.findMany({
-      where:{
-        id:"teacher12"
-      },
+  // URL PARAMS CONDITION 
+  // easy to search that why use prsima
+  const query: Prisma.TeacherWhereInput = {} 
+   if(queryParams){
+    for (const [key,value]of Object.entries(queryParams)){
+      if(value!==undefined)
+      switch(key){
+        case "classId":
+          query.lessons= {
+     
+           some: { classId: parseInt(value) }
+         }
+      }
+    }
+  }
+  const [data, count] = await prisma.$transaction([
+    prisma.teacher.findMany({
+      where:query,
+      
+           // Filtering teachers who have lessons in a specific class
+          //  qclass id extract query params to filter teachers parseint is traedted as a number
+       
       include: {
         subjects: true,
         classes: true,
       },
-      // fetch only 10 items
-      take:ITEM_PER_PAGE,
-      skip :ITEM_PER_PAGE * (p-1),
+      // Fetch only 10 items
+      take: ITEM_PER_PAGE,
+      skip: ITEM_PER_PAGE * (p - 1),
     }),
-    prisma.teacher.count()
-  ])
+    prisma.teacher.count({where:query
+     
+})
+  ]);
   
   
   // await prisma.teacher.findMany({
