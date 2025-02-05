@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import FormContainer from "@/components/FormModal";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
@@ -7,7 +8,6 @@ import { Class, Prisma, Subject, Teacher } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { ITEM_PER_PAGE } from "@/lib/settings";
-import { auth } from "@clerk/nextjs/server";
 
 type TeacherList = Teacher & { subjects: Subject[] } & { classes: Class[] };
 
@@ -16,8 +16,10 @@ const TeacherListPage = async ({
 }: {
   searchParams: { [key: string]: string | undefined };
 }) => {
-  const { sessionClaims } = auth();
+  // ✅ Move auth() inside the component
+  const { userId, sessionClaims } = await auth();
   const role = (sessionClaims?.metadata as { role?: string })?.role;
+
   const columns = [
     {
       header: "Info",
@@ -78,10 +80,10 @@ const TeacherListPage = async ({
       </td>
       <td className="hidden md:table-cell">{item.username}</td>
       <td className="hidden md:table-cell">
-        {item.subjects.map((subject) => subject.name).join(",")}
+        {item.subjects.map((subject) => subject.name).join(", ")}
       </td>
       <td className="hidden md:table-cell">
-        {item.classes.map((classItem) => classItem.name).join(",")}
+        {item.classes.map((classItem) => classItem.name).join(", ")}
       </td>
       <td className="hidden md:table-cell">{item.phone}</td>
       <td className="hidden md:table-cell">{item.address}</td>
@@ -92,22 +94,16 @@ const TeacherListPage = async ({
               <Image src="/view.png" alt="" width={16} height={16} />
             </button>
           </Link>
-          {role === "admin" && (
-            // <button className="w-7 h-7 flex items-center justify-center rounded-full bg-lamaPurple">
-            //   <Image src="/delete.png" alt="" width={16} height={16} />
-            // </button>
-            <FormContainer table="teacher" type="delete" id={item.id} />
-          )}
+          {role === "admin" && <FormContainer table="teacher" type="delete" id={item.id} />}
         </div>
       </td>
     </tr>
   );
-  const { page, ...queryParams } = searchParams;
 
+  const { page, ...queryParams } = searchParams;
   const p = page ? parseInt(page) : 1;
 
   // URL PARAMS CONDITION
-
   const query: Prisma.TeacherWhereInput = {};
 
   if (queryParams) {
@@ -158,9 +154,7 @@ const TeacherListPage = async ({
             <button className="w-8 h-8 flex items-center justify-center rounded-full bg-lamaYellow">
               <Image src="/sort.png" alt="" width={14} height={14} />
             </button>
-            {role === "admin" && (
-              <FormContainer table="teacher" type="create" />
-            )}
+            {role === "admin" && <FormContainer table="teacher" type="create" />}
           </div>
         </div>
       </div>
