@@ -1,5 +1,5 @@
 import { auth } from "@clerk/nextjs/server";
-import FormContainer from "@/components/FormModal";
+import FormContainer from "@/components/FormContainer";
 import Pagination from "@/components/Pagination";
 import Table from "@/components/Table";
 import TableSearch from "@/components/TableSearch";

@@ -18,7 +18,7 @@ export default function DashboardLayout({
           lg:justify-start  gap-2"
         >
           <Image src="/logo.png" alt="logo" width={32} height={32} />
-          <span className="hidden lg:block font-bold">SchoolLama</span>
+          <span className="hidden lg:block font-bold">Azad Tutorials</span>
         </Link>
         <Menu />
       </div>
